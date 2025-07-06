@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diabetic Retinopathy Detection</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <h2 class="logo">RetinoCheck</h2>
+      <ul class="nav-links">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#how">How to Use</a></li>
+        <li><a href="#details">Detection Info</a></li>
+        <li><a href="#samples">Sample Images</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Home Section -->
+  <section id="home" class="section">
+    <div class="section-content">
+      <h1>Welcome to RetinoCheck</h1>
+      <p>Our mission is to bring AI-powered early detection of Diabetic Retinopathy to everyone. Upload a retinal image to check for signs of diabetic retinopathy using our deep learning model.</p>
+    </div>
+  </section>
+
+  <!-- Upload and Result Section -->
+  <section class="section upload-section">
+    <div class="section-content">
+      <h2>Upload Retinal Image</h2>
+      <form action="/predict" method="post" enctype="multipart/form-data">
+        <label>Select your own retinal image:</label><br>
+        <input type="file" name="file" required>
+        <br><br>
+        <label>Or use a sample image:</label><br>
+        <select name="sample_file" onchange="loadSampleImage(this.value)">
+          <option value="">-- Choose Sample --</option>
+          <option value="static/samples/diabetic_sample.png">Diabetic Sample</option>
+          <option value="static/samples/normal_sample.png">Normal Sample</option>
+        </select>
+        <br><br>
+        <button type="submit">Upload & Predict</button>
+      </form>
+
+      <script>
+        function loadSampleImage(path) {
+          if (path) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/predict';
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'sample_path';
+            input.value = path;
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
+          }
+        }
+      </script>
+
+      {% if result %}
+      <div class="result">
+        <h3>Prediction: {{ result }}</h3>
+        <h4>Original Image:</h4>
+        <img src="{{ url_for('send_uploaded_file', filename=image) }}" alt="Uploaded Image">
+        <h4>Model Focus (Grad-CAM):</h4>
+        <img src="{{ url_for('send_uploaded_file', filename=gradcam_image) }}" alt="Grad-CAM">
+      </div>
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- How to Use Section -->
+  <section id="how" class="section alt-section">
+    <div class="section-content">
+      <h2>How to Use</h2>
+      <ol>
+        <li>Take or upload a clear retinal image (JPEG/PNG).</li>
+        <li>Or choose a preloaded sample image for testing.</li>
+        <li>Click on "Upload & Predict" to analyze.</li>
+        <li>View the prediction and the highlighted image region (Grad-CAM).</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="section">
+    <div class="section-content">
+      <h2>About the Project</h2>
+      <p>This project is powered by a deep learning model based on MobileNetV2, trained on a balanced dataset of 1600 diabetic and 1600 normal retinal images. Our goal is to assist in early detection of Diabetic Retinopathy using AI to improve vision health outcomes across the globe.</p>
+    </div>
+  </section>
+
+  <!-- Detection Details Section -->
+  <section id="details" class="section alt-section">
+    <div class="section-content">
+      <h2>Detection Model Details</h2>
+      <p><strong>Dataset:</strong> Publicly available diabetic retinopathy dataset from Kaggle.</p>
+      <p><strong>Architecture:</strong> Custom MobileNetV2 with vessel-enhanced preprocessing.</p>
+      <p><strong>Accuracy:</strong> Achieved 98% on validation set.</p>
+      <p><strong>Use Case:</strong> Early screening tool for general population and rural clinics with minimal resources.</p>
+      <p><strong>Future Improvements:</strong> Include severity grading, multi-disease detection, and real-time mobile app integration.</p>
+    </div>
+  </section>
+
+  <!-- Sample Images Section -->
+  <section id="samples" class="section">
+    <div class="section-content">
+      <h2>Sample Retinal Images</h2>
+      <p>Use these sample images to try the application or understand the difference between diabetic and normal retina images.</p>
+      <div class="sample-gallery">
+        <div class="sample">
+          <h4>Diabetic Retina</h4>
+          <a href="{{ url_for('static', filename='samples/diabetic_sample.png') }}" download>
+            <img src="{{ url_for('static', filename='samples/diabetic_sample.png') }}" alt="Diabetic Retina">
+          </a>
+        </div>
+        <div class="sample">
+          <h4>Normal Retina</h4>
+          <a href="{{ url_for('static', filename='samples/normal_sample.png') }}" download>
+            <img src="{{ url_for('static', filename='samples/normal_sample.png') }}" alt="Normal Retina">
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</body>
+</html>
